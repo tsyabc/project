@@ -3,7 +3,7 @@ def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True
     node_connect = []
     node_features = []
     graph_labels = []
-    graph_indicator = []  
+    graph_indicator = []
     node_labels = []
     graph_num_list = []
     feature_dict = {}
@@ -23,23 +23,23 @@ def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True
             flag1 = 0
 
             counter = 0
-            for node_child in node.child_list: 
+            for node_child in node.child_list:
 
                 flag2 = 0
                 flag3 = 0
 
-                for node_child_parent in node_child.parent_list:  
+                for node_child_parent in node_child.parent_list:
                     for node_child_parent_parent in node_child_parent.parent_list:
-                        counter += 1  
+                        counter += 1
                         if node_child_parent_parent.name not in pred_positive_signals:
-                            flag2 += 1  
+                            flag2 += 1
                 for first_child in node_child.child_list:
                     for node_child_child in first_child.child_list:
-                        if node_child_child.name in pred_positive_signals:  
+                        if node_child_child.name in pred_positive_signals:
                             flag3 += 1
 
                 if (flag3 == 0) and (flag2 > 0) and (
-                        node_child.name in pred_positive_signals):  
+                        node_child.name in pred_positive_signals):
                     pred_positive_signals.remove(node_child.name)
 
         if node.type == "output":
@@ -47,7 +47,7 @@ def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True
             for node_child in node.child_list:
                 for node_child_child in node_child.child_list:
                     if node_child_child.name in pred_positive_signals:
-                        flag6 += 1 
+                        flag6 += 1
             if (flag6 == 0) and (node.name in pred_positive_signals):
                 pred_positive_signals.remove(node.name)
 
@@ -85,16 +85,16 @@ def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True
             for node_child in node.child_list:
                 flag2 = 0
                 if node_child.name not in pred_positive_signals:
-                    flag1 += 1  
-                for node_child_parent in node_child.parent_list: 
+                    flag1 += 1
+                for node_child_parent in node_child.parent_list:
                     for node_child_parent_parent in node_child_parent.parent_list:
-                        counter += 1  
+                        counter += 1
                         if node_child_parent_parent.name not in pred_positive_signals:
                             flag2 += 1
-                if flag2 == 0:  
+                if flag2 == 0:
                     pred_positive_signals.append(node_child.name)
 
-            if flag1 == 0:  
+            if flag1 == 0:
                 for node_parent in node.parent_list:
                     pred_positive_signals.append(node_parent.name)
     Trojan_signals = list(set(pred_positive_signals))
@@ -110,11 +110,11 @@ def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True
             flag5 = 0
             for node_child in node.child_list:
                 for node_child_child in node_child.child_list:
-                    if node_child_child.name in pred_positive_signals: 
+                    if node_child_child.name in pred_positive_signals:
                         flag4 += 1
             for node_parent in node.parent_list:
                 for node_parent_parent in node_parent.parent_list:
-                    if node_parent_parent.name in pred_positive_signals: 
+                    if node_parent_parent.name in pred_positive_signals:
                         flag5 += 1
             if (flag4 > 0) and (flag5 == 0) and node.name not in pred_positive_signals:
                 payload_name = node.name
@@ -125,3 +125,23 @@ def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True
             for payload_child in payload_node_child.child_list:
                 if payload_child.name not in pred_positive_signals:
                     temporary = payload_child.name
+
+    if (os.path.exists(os.path.join(dir_list, file_name)) == True) and (temporary != ""):
+        file_path = os.path.join(file_dir, file_name)
+
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+            pattern_temp = re.compile(r'\b' + re.escape(temporary) + r'\b\s*,?\s*')
+
+            filtered_lines = []
+
+            for line in lines:
+                modified_line = line
+
+                modified_line = pattern_temp.sub(payload_name, modified_line)
+                if not any(trojan_str in modified_line for trojan_str in Trojan_signals):
+                    filtered_lines.append(modified_line)
+        output_file_path = os.path.join(file_dir, "normal.v")
+        with open(output_file_path, 'w', encoding='utf-8') as file:
+            file.writelines(filtered_lines)
