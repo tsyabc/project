@@ -131,9 +131,7 @@ def eliminate(dir_list, file_name, pred_positive_signals, equivalence=True):
 
         with open(file_path, 'r') as file:
             lines = file.readlines()
-
             pattern_temp = re.compile(r'\b' + re.escape(temporary) + r'\b\s*,?\s*')
-
             filtered_lines = []
 
             for line in lines:
