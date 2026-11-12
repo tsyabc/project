@@ -1,4 +1,4 @@
-def eliminategithub(dir_list, file_name, pred_positive_signals, equivalence=True):
+def eliminate(dir_list, file_name, pred_positive_signals, equivalence=True):
 
     node_connect = []
     node_features = []
